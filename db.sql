@@ -382,7 +382,7 @@ CREATE TABLE `session_task` (
   `session_id` varchar(9) NOT NULL,
   `task_id` int(4) NOT NULL,
   `task_order` int(2) NOT NULL,
-  `tast_required` tinyint(1) NOT NULL DEFAULT '1',
+  `task_required` tinyint(1) NOT NULL DEFAULT '1',
   `task_hint_count` int(2) NOT NULL DEFAULT '0',
   `task_reward` int(6) NOT NULL,
   `task_complete` tinyint(1) NOT NULL DEFAULT '0',
@@ -393,7 +393,7 @@ CREATE TABLE `session_task` (
 -- Dumping data for table `session_task`
 --
 
-INSERT INTO `session_task` (`session_id`, `task_id`, `task_order`, `tast_required`, `task_hint_count`, `task_reward`, `task_complete`, `task_active`) VALUES
+INSERT INTO `session_task` (`session_id`, `task_id`, `task_order`, `task_required`, `task_hint_count`, `task_reward`, `task_complete`, `task_active`) VALUES
 ('s12345678', 1, 1, 1, 0, 0, 0, 0),
 ('s12345678', 2, 2, 1, 0, 0, 0, 0),
 ('s12345678', 3, 3, 1, 0, 0, 0, 0),
