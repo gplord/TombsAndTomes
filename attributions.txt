@@ -1,0 +1,60 @@
+IMAGES: -----------------------------------------------------------------------
+
+Hermione Granger:   
+By Reilly Brown - reillybrownart - reillybrown.deviantart - twitter.com/reilly_brown [CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0)], via Wikimedia Commons
+https://commons.wikimedia.org/wiki/File%3AHarry_Potter_by_Reilly_Brown.jpg
+
+Count Dracula:
+By Thecount68 (Own work) [Public domain], via Wikimedia Commons
+https://commons.wikimedia.org/wiki/File%3ADracula_vampire.jpg
+
+Beowulf:
+By J. R. Skelton [Public domain], via Wikimedia Commons
+https://commons.wikimedia.org/wiki/File%3AStories_of_beowulf_fighting_the_dragon.jpg
+
+Sherlock Holmes:
+Sidney Paget [Public domain], via Wikimedia Commons
+https://commons.wikimedia.org/wiki/File%3ASherlock_Holmes_-_The_Man_with_the_Twisted_Lip.jpg
+
+Aragog:
+By Rob Young from United Kingdom (Aragog) [CC BY 2.0 (http://creativecommons.org/licenses/by/2.0)], via Wikimedia Commons
+https://commons.wikimedia.org/wiki/File%3AAragog_(7119116887).jpg
+
+Grendel:
+By J. R. Skelton [Public domain], via Wikimedia Commons
+https://commons.wikimedia.org/wiki/File%3AStories_of_beowulf_grendel.jpg
+
+Professor Moriarty:
+By Sidney Paget (1860-1908) (The Strand Magazine) [Public domain], via Wikimedia Commons
+https://commons.wikimedia.org/wiki/File%3APd_Moriarty_by_Sidney_Paget.gif
+
+Abraham Van Helsing:
+By Screenshot from "Internet Archive" of the movie Dracula (1958) [Public domain], via Wikimedia Commons
+https://commons.wikimedia.org/wiki/File%3ADracula_1958_e.jpg
+
+
+PROJECT ART & ICONS: ----------------------------------------------------------
+
+All artwork, logos, and icons are original work, created for this project.
+
+Logo, 3D Images, Icons:     Greg Lord (@gplord)
+Illustrations:              Megan Kudzia (@mkudzia)
+
+
+CODE & THEME: -----------------------------------------------------------------
+
+This project makes use of jQuery and Bootstrap for code and layout.
+
+jQuery:     https://jquery.com/
+Bootstrap:  http://getbootstrap.com/
+
+
+TEXT: -------------------------------------------------------------------------
+
+Descriptive text is largely taken from Wikipedia entries, with minor editing.  
+
+Beowulf:                https://en.wikipedia.org/wiki/Beowulf
+Hermione Granger:       https://en.wikipedia.org/wiki/Hermione_Granger
+Sherlock Holmes:        https://en.wikipedia.org/wiki/Sherlock_Holmes
+Abraham Van Helsing:    https://en.wikipedia.org/wiki/Abraham_Van_Helsing
+Count Dracula:          https://en.wikipedia.org/wiki/Count_Dracula
