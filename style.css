@@ -7,3 +7,7 @@
     background: none;
     border: 1px solid rgba(0,0,0,.125);
 }
+
+.list-group-item:nth-child(even) {
+    background-color: rgba(0,0,0,0.05);
+}

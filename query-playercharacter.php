@@ -1,17 +1,18 @@
 <?php
 session_start();
+//header('Content-Type: application/json; charset=utf-8');  // DEBUG: Enable this for readable printing to screen
 
 // $session_id = $_SESSION['session_id'];
 // $player_id = $_SESSION['player_id'];
 
 $conn = new mysqli("localhost", "root", "root", "dungeon");
-$session_id = $conn->real_escape_string($_POST['session_id']);
-$player_id = $conn->real_escape_string($_POST['player_id']);
+$session_id = $conn->real_escape_string($_SESSION['session_id']);
+$player_id = $conn->real_escape_string($_SESSION['player_id']);
 
 function QueryPlayerHeroInstance($conn, $session_id, $player_id) {
     $hero_instance_query = sprintf("SELECT
         hero_instance.*, hero.hero_name, hero.hero_desc, hero.hero_image, player.player_name, player.player_email, player.player_id,
-        session_player.player_order, session_player.player_current, session_player.player_ready
+        session_player.player_order, session_player.player_current, session_player.player_ready, session_update
         FROM hero_instance
         LEFT JOIN player_hero_instance
             ON hero_instance.hinst_id = player_hero_instance.hinst_id
@@ -60,7 +61,7 @@ function QueryHeroInstanceEffects($conn, $hinst_id) {
         FROM hero_instance_effect
         LEFT JOIN effect
             ON hero_instance_effect.effect_id = effect.effect_id
-        WHERE hero_instance_effect.hinst_id = '%d'",
+        WHERE hero_instance_effect.hinst_id = '%s'",
         $hinst_id);
     $effect_result = $conn->query($effect_query);
     $effects = array();
