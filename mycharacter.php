@@ -20,7 +20,58 @@ $(document).ready(function(){
     UpdateSheet();                                          // Initial page load
     setInterval(function() { UpdatePoll() }, pollTimeout);  // Begin regular polling at interval set above
 
+    // Called when showing Ability Modal, gathers Ability info from ID field, populates Modal window
+    // Posts to damage processing query, which inflicts damage to the current villain
+    // TODO: Hand off only the Hero Instance ID and Ability ID, to let the server process damage, instead of the client
+    $('#abilityModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) // Button that triggered the modal
+        var abilityid = button.data('abilityid') // Extract info from data-* attributes
+        console.log(mycharacter.abilities[abilityid]);
+        var ability = mycharacter.abilities[abilityid];
+        // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+        // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+        var modal = $(this);
+        modal.find('.modal-title').text(ability.ability_name);
+        modal.find('.modal-body').text("You attack " + activevillain.villain_name + " with your " + ability.ability_name + ", inflicting " + ability.ability_damage + " points of damage!");
+
+        ProcessDamage(ability.ability_type_id, ability.ability_damage, activevillain.vinst_id);
+    });
+
+    // Function to handle closing Ability Modal, which posts to a ReadyPlayer query
+    $('#abilityModal').on('hide.bs.modal', function (e) {
+        console.log("Closed message.");
+        console.log("Readying player.");
+        ReadyPlayer();
+        console.log("Player readied.  Next player activated.")
+    });
+
 });
+
+function ProcessDamage(ability_type_id, ability_damage, vinst_id) {
+    console.log("Processing damage: " + ability_type_id + " / " + ability_damage + " / " + vinst_id);
+    $.post( "query-processdamage.php", { 'ability_type_id': ability_type_id, 'ability_damage': ability_damage, 'vinst_id': vinst_id })
+    .done(function( data ) {
+        // console.log(data);   // Debug
+        if (data == "1") {
+            console.log("Villain damage processed.");
+        } else {
+            console.log("Error processing Villain damage: " + data);
+        }
+    });
+}
+
+function ReadyPlayer() {
+    $.post( "query-readyplayer.php", { })   // Set this player to ready, readying the session, activating the next turn, and updating the session
+    .done(function( data ) {
+        // console.log(data);   // Debug
+        if (data == "1") {
+            console.log("Session updated.");
+            UpdateSheet();                  // Turn is finished, redraw character sheet
+        } else {
+            console.log("Error updating session: " + data);
+        }
+    });
+}
 
 // Simple polling function, checks server for update value, returns 1 (Up to date) or 0 (Not up to date)
 function UpdatePoll() {
@@ -56,6 +107,8 @@ function UpdateSheet() {
         // For each hero returned (there will be only one matching the query criteria)
         $.each(content, function(i, hero) { 
 
+            console.log(hero);
+
             // Save this hero query record back to a global variable, for future polls
             mycharacter = hero;
             session_update = hero.session_update;
@@ -76,6 +129,7 @@ function UpdateSheet() {
                 var newblock = $("#ability-block").clone().appendTo("#mycharacter-abilities");
                 newblock.find(".ability-name").text(ability.ability_name);
                 newblock.find(".ability-desc").text(ability.ability_desc);
+                newblock.find(".ability-button" ).attr( "data-abilityid", i );
                 newblock.collapse().show();
             });
             // For each effect, clone and append an effect block with the effect info
@@ -91,7 +145,10 @@ function UpdateSheet() {
             // (Server will enforce using abilities only on a player's turn)
             if (hero.player_current == 1) {
                 $("#alert-currentturn").collapse().show();
-                $(".currentturn").show();
+                $(".currentturn").collapse('show');
+            } else {
+                $("#alert-currentturn").collapse('hide');
+                $(".currentturn").collapse('hide');
             }
 
         });
@@ -177,9 +234,29 @@ function UpdateSheet() {
 
 <div class="container mt-3">
 
+    <!-- Ability Modal -->
+    <div class="modal fade" id="abilityModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">[ Ability Name ]</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    [ Ability Text ]
+                </div>
+                <div class="modal-footer text-center modal-ready">
+                    <button type="button" class="btn btn-success" data-dismiss="modal">Ready</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="alert-currentturn" class="row collapse">
         <div class="col-12">
-            <div class="alert alert-info bg-info text-white" role="alert"> 
+            <div class="alert alert-info bg-success text-white" role="alert"> 
                 <strong>It's your turn!</strong> Choose an Item or Ability below to use this turn.
             </div>
         </div>
@@ -369,7 +446,7 @@ function UpdateSheet() {
             </div>
         </div>
         <div class="currentturn collapse text-center">
-            <button class="currentturn btn btn-primary mt-2">Use this Ability</button>
+            <button type="button" class="currentturn btn btn-primary mt-2 ability-button" data-toggle="modal" data-target="#abilityModal" data-abilityid="">Use this Ability</button>
         </div>
     </li>
 

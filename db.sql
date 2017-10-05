@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:8889
--- Generation Time: Oct 05, 2017 at 08:13 AM
+-- Generation Time: Oct 05, 2017 at 11:36 AM
 -- Server version: 5.6.33
 -- PHP Version: 7.0.12
 
@@ -321,7 +321,6 @@ CREATE TABLE `session` (
   `session_id` varchar(9) NOT NULL,
   `session_name` varchar(255) NOT NULL,
   `session_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `session_update` int(10) NOT NULL,
   `session_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `session_password` varchar(255) NOT NULL,
   `session_locked` tinyint(1) NOT NULL DEFAULT '0',
@@ -329,6 +328,8 @@ CREATE TABLE `session` (
   `session_log` text,
   `session_reward` int(6) DEFAULT NULL,
   `session_complete` tinyint(1) NOT NULL DEFAULT '0',
+  `session_player_count` int(2) NOT NULL,
+  `session_update` int(10) NOT NULL,
   `session_ready` tinyint(1) NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -336,9 +337,9 @@ CREATE TABLE `session` (
 -- Dumping data for table `session`
 --
 
-INSERT INTO `session` (`session_id`, `session_name`, `session_created`, `session_update`, `session_time`, `session_password`, `session_locked`, `session_desc`, `session_log`, `session_reward`, `session_complete`, `session_ready`) VALUES
-('s12345678', 'Example Session', '2017-10-05 06:13:10', 1, '2017-09-12 09:39:16', 'test', 0, 'This is a fake session to test the game.', '(Blank.)', 0, 0, 1),
-('s22222222', 'Fake Second Session', '2017-09-19 04:57:19', 1, '2017-09-19 04:57:19', 'password', 0, 'This one exists just to make sure we\'re selecting the right one.', '(Blank.)', NULL, 0, 1);
+INSERT INTO `session` (`session_id`, `session_name`, `session_created`, `session_time`, `session_password`, `session_locked`, `session_desc`, `session_log`, `session_reward`, `session_complete`, `session_player_count`, `session_update`, `session_ready`) VALUES
+('s12345678', 'Example Session', '2017-10-05 09:36:01', '2017-09-12 09:39:16', 'test', 0, 'This is a fake session to test the game.', '(Blank.)', 0, 0, 3, 1, 0),
+('s22222222', 'Fake Second Session', '2017-10-05 07:06:43', '2017-09-19 04:57:19', 'password', 0, 'This one exists just to make sure we\'re selecting the right one.', '(Blank.)', NULL, 0, 3, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -372,9 +373,9 @@ CREATE TABLE `session_player` (
 --
 
 INSERT INTO `session_player` (`session_id`, `player_id`, `player_order`, `player_current`, `player_ready`) VALUES
-('s12345678', 'p11111111', 1, 1, 1),
-('s12345678', 'p22222222', 2, 0, 0),
-('s12345678', 'p33333333', 3, 0, 0),
+('s12345678', 'p11111111', 1, 1, 0),
+('s12345678', 'p22222222', 2, 0, 1),
+('s12345678', 'p33333333', 3, 0, 1),
 ('s22222222', 'p77777777', 3, 0, 0),
 ('s22222222', 'p88888888', 2, 0, 0),
 ('s22222222', 'p99999999', 1, 1, 0);
