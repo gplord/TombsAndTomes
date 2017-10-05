@@ -19,20 +19,20 @@ $(document).ready(function(){
         });
     });
 
-    $("#villainquery").click(function(){
-        $.post( "poll-active-villains.php", { session_id: 's12345678' })
-        .done(function( data ) {
-            //console.log( "Data Loaded: " + data );
-            var content = JSON.parse(data);
-            // console.log(content);
+    // $("#villainquery").click(function(){
+    //     $.post( "poll-active-villains.php", { session_id: 's12345678' })
+    //     .done(function( data ) {
+    //         //console.log( "Data Loaded: " + data );
+    //         var content = JSON.parse(data);
+    //         // console.log(content);
 
-            $.each(content, function(i, villain) { 
-                console.log(villain);
-                $("#villains").append("<p>" + villain.villain_name + "</p>");
-            });
+    //         $.each(content, function(i, villain) { 
+    //             console.log(villain);
+    //             $("#villains").append("<p>" + villain.villain_name + "</p>");
+    //         });
 
-        });
-    });
+    //     });
+    // });
 
 });
 </script>

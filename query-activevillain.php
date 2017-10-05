@@ -51,7 +51,7 @@ function QueryVillainAbilities($conn, $villain_id) {
 
 function QueryVillainInstanceEffects($conn, $vinst_id) {
     $effect_query = sprintf("SELECT
-        effect.*
+        effect.*, villain_instance_effect.effect_durationleft
         FROM villain_instance_effect
         LEFT JOIN effect
             ON villain_instance_effect.effect_id = effect.effect_id

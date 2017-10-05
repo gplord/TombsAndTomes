@@ -57,7 +57,7 @@ function QueryHeroAbilities($conn, $hero_id) {
 
 function QueryHeroInstanceEffects($conn, $hinst_id) {
     $effect_query = sprintf("SELECT
-        effect.*
+        effect.*, hero_instance_effect.effect_durationleft
         FROM hero_instance_effect
         LEFT JOIN effect
             ON hero_instance_effect.effect_id = effect.effect_id

@@ -8,13 +8,36 @@ $conn = new mysqli("localhost", "root", "root", "dungeon");
 
 <script>
 
-var session_update;     // Global session update id, for polling
-var mycharacter;        // Global character object, for comparison with poll results
-var activevillain;      // Global villain object, for comparison with poll results
+// Globals
+var session_update;         // Global session update id, for polling
+var mycharacter;            // Global character object, for comparison with poll results
+var activevillain;          // Global villain object, for comparison with poll results
+var pollTimeout = 3000;     // Time in ms for poll to refire
 
-// On the page load
+// On Page load
 $(document).ready(function(){
 
+    UpdateSheet();                                          // Initial page load
+    setInterval(function() { UpdatePoll() }, pollTimeout);  // Begin regular polling at interval set above
+
+});
+
+// Simple polling function, checks server for update value, returns 1 (Up to date) or 0 (Not up to date)
+function UpdatePoll() {
+    $.post( "poll-update.php", { 'session_update': session_update })   // Poll with value derived from first UpdateSheet() call
+    .done(function( data ) {
+        // console.log(data);   // Debug
+        if (data == 0) {
+            console.log("Poll returned false: Update required.");
+            UpdateSheet();
+        } else if (data == 1) {
+            console.log("Poll returned true: Up to date.");
+        }
+    });
+}
+
+// Master function for querying character/session/villain info from db and updating the sheet
+function UpdateSheet() {
     // Ajax call to our query function for the player's character
     // Includes necessary Session and Villain info, for game state management
     $.post( "query-playercharacter.php", { session_id: '<?php echo $_SESSION['session_id']; ?>', player_id:'<?php echo $_SESSION['player_id']; ?>' })
@@ -24,15 +47,18 @@ $(document).ready(function(){
         var content = JSON.parse(data);
         //  console.log(content);   // Debug
 
+        $("#mycharacter-abilities").empty();
+        $("#mycharacter-effects").empty();
+        $("#combat-turnorder").empty();
+        $("#villain-abilities").empty();
+        $("#villain-effects").empty();
+
         // For each hero returned (there will be only one matching the query criteria)
         $.each(content, function(i, hero) { 
 
             // Save this hero query record back to a global variable, for future polls
             mycharacter = hero;
             session_update = hero.session_update;
-
-            console.log(hero.hero_name);
-            console.log(hero.hero_image);
             $("#mycharacter-name").text(hero.hero_name);
             $("#mycharacter-image").attr("src", "/images/"+hero.hero_image);
             $("#mycharacter-desc").text(hero.hero_desc);
@@ -48,7 +74,6 @@ $(document).ready(function(){
             // For each ability, clone and append an ability block with the ability info
             $.each (hero.abilities, function(i, ability) {
                 var newblock = $("#ability-block").clone().appendTo("#mycharacter-abilities");
-                // newblock.children(".ability-name").text("Frank");
                 newblock.find(".ability-name").text(ability.ability_name);
                 newblock.find(".ability-desc").text(ability.ability_desc);
                 newblock.collapse().show();
@@ -56,9 +81,9 @@ $(document).ready(function(){
             // For each effect, clone and append an effect block with the effect info
             $.each (hero.effects, function(i, effect) {
                 var newblock = $("#effect-block").clone().appendTo("#mycharacter-effects");
-                // newblock.children(".ability-name").text("Frank");
                 newblock.find(".effect-name").text(effect.effect_name);
                 newblock.find(".effect-desc").text(effect.effect_desc);
+                newblock.find(".effect-duration").text(effect.effect_durationleft);
                 // newblock.collapse().show();
             });
 
@@ -113,7 +138,6 @@ $(document).ready(function(){
             $("#villain-image").attr("src", "/images/"+villain.villain_image);
             $("#villain-desc").text(villain.villain_desc);
             $("#villain-level").text(villain.vinst_level);
-            $("#villain-xp").text(villain.vinst_xp + " / " + villain.vinst_xpnext);
             $("#villain-health").text(villain.vinst_hp + " / " + villain.vinst_hp_max);
             $("#villain-energy").text(villain.vinst_energy + " / " + villain.vinst_energy_max);
             $("#villain-str").text(villain.vinst_str);
@@ -133,6 +157,7 @@ $(document).ready(function(){
                 var newblock = $("#effect-block").clone().appendTo("#villain-effects");
                 newblock.find(".effect-name").text(effect.effect_name);
                 newblock.find(".effect-desc").text(effect.effect_desc);
+                newblock.find(".effect-duration").text(effect.effect_durationleft);
             });
 
             //console.log(villain.villain_name);  // Debug
@@ -144,7 +169,10 @@ $(document).ready(function(){
 
     });
 
-});
+    console.log("Update completed.");
+
+}
+
 </script>
 
 <div class="container mt-3">
@@ -279,10 +307,6 @@ $(document).ready(function(){
                                     <td id="villain-level" class="text-center"></td>
                                 </tr>
                                 <tr>
-                                    <th>Experience</th>
-                                    <td id="villain-xp" class="text-center"></td>
-                                </tr>
-                                <tr>
                                     <th>Health</th>
                                     <td id="villain-health" class="text-center"></td>
                                 </tr>
@@ -366,7 +390,7 @@ $(document).ready(function(){
             <img class="d-flex mr-3 effect-image" src="/images/icon-placeholder.png" alt="Generic placeholder image" style="width: 36px">
             <div class="media-body">
                 <h6 class="mt-0 mb-1 effect-name"><strong>[ Effect Name ]</strong></h6>
-                <strong class="effect-duration">(# Turn(s) Remaining)</strong><br>
+                <strong>(<span class="effect-duration">#</span> Turn(s) Remaining)</strong><br>
                 <span class="effect-desc">[ Effect Description ]</span>
             </div>
         </div>
