@@ -34,7 +34,7 @@ $(document).ready(function(){
         modal.find('.modal-title').text(ability.ability_name);
         modal.find('.modal-body').text("You attack " + activevillain.villain_name + " with your " + ability.ability_name + ", inflicting " + ability.ability_damage + " points of damage!");
 
-        ProcessDamage(ability.ability_type_id, ability.ability_damage, activevillain.vinst_id);
+        ProcessDamage(ability.ability_type_id, ability.ability_damage, activevillain.vinst_id, mycharacter.hero_name, activevillain.villain_name, ability.ability_name, mycharacter.hinst_id);
     });
 
     // Function to handle closing Ability Modal, which posts to a ReadyPlayer query
@@ -47,9 +47,17 @@ $(document).ready(function(){
 
 });
 
-function ProcessDamage(ability_type_id, ability_damage, vinst_id) {
+function ProcessDamage(ability_type_id, ability_damage, vinst_id, hero_name, villain_name, ability_name, hinst_id) {
     console.log("Processing damage: " + ability_type_id + " / " + ability_damage + " / " + vinst_id);
-    $.post( "query-processdamage.php", { 'ability_type_id': ability_type_id, 'ability_damage': ability_damage, 'vinst_id': vinst_id })
+    $.post( "query-processdamage.php", { 
+        'ability_type_id': ability_type_id, 
+        'ability_damage': ability_damage, 
+        'vinst_id': vinst_id,
+        'hero_name': hero_name,
+        "villain_name": villain_name,
+        "ability_name": ability_name,
+        "hinst_id": hinst_id
+    })
     .done(function( data ) {
         // console.log(data);   // Debug
         if (data == "1") {
@@ -124,6 +132,21 @@ function UpdateSheet() {
             $("#mycharacter-int").text(hero.hinst_int);
             $("#mycharacter-cng").text(hero.hinst_cng);
 
+            // Update the Combat Log
+            $("#combat-log").html(hero.session_log);
+            $("#combat-log").find("li").addClass("list-group-item");
+            $("#combat-log").find(".logv").addClass("text-danger");
+            if ($("#combat-log li").last().attr("data-t") == "v") {
+                $("#combat-log li").last().removeClass("text-danger");
+                $("#combat-log li").last().addClass("bg-danger text-white");
+                var villainModal = $("#villainTurnModal");
+                villainModal.find('.modal-title').text("Villain's Turn");
+                villainModal.find('.modal-body').html($("#combat-log li").last().html());
+                villainModal.modal('show');
+            }
+            $('#combat-turncount').text($("#combat-log").children().length);
+            $('#combat-log').scrollTop($('#combat-log')[0].scrollHeight); // Scroll to most recent (bottom) entry in combat log
+
             // For each ability, clone and append an ability block with the ability info
             $.each (hero.abilities, function(i, ability) {
                 var newblock = $("#ability-block").clone().appendTo("#mycharacter-abilities");
@@ -144,7 +167,7 @@ function UpdateSheet() {
             // If it is this player's turn, show the turn reminder and enable the ability use buttons
             // (Server will enforce using abilities only on a player's turn)
             if (hero.player_current == 1) {
-                $("#alert-currentturn").collapse().show();
+                $("#alert-currentturn").collapse('show');
                 $(".currentturn").collapse('show');
             } else {
                 $("#alert-currentturn").collapse('hide');
@@ -254,6 +277,26 @@ function UpdateSheet() {
         </div>
     </div>
 
+    <!-- Villain Turn Modal -->
+    <div class="modal fade" id="villainTurnModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="exampleModalLabel">[ Villain Turn Title ]</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    [ Villain Turn Text ]
+                </div>
+                <div class="modal-footer text-center modal-ready">
+                    <button type="button" class="btn btn-success" data-dismiss="modal">Ready</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="alert-currentturn" class="row collapse">
         <div class="col-12">
             <div class="alert alert-info bg-success text-white" role="alert"> 
@@ -274,14 +317,13 @@ function UpdateSheet() {
         </div>
         <div class="col-md-8">
             <div class="card mb-3">
-                <div class="card-header">Combat Log [Test] <span style="float: right">(5 Turns)</span></div>
+                <div class="card-header">Combat Log [Test] <span style="float: right">(<span id="combat-turncount">#</span> Turns)</span></div>
                 <div class="card-body">
-                    <ul id="combatlog" class="list-group" style="height: 197px; overflow: scroll">
-                        <li class="list-group-item">Beowulf lunges with Warrior Strength, inflicting 4 points of damage on Count Dracula.</li>
-                        <li class="list-group-item">Abraham Van Helsing uses Sacred Weapons to inflict 3 points of damage on Count Dracula.</li>
-                        <li class="list-group-item">Hermione Granger casts Incendio, igniting Count Dracula for 3 points of Fire Damage.</li>
-                        <li class="list-group-item">Count Dracula sneers, shouting "I vant to suck your blood!" <em>(He appears moderately injured.)</em></li>
-                        <li class="list-group-item active">Count Dracula uses Vampiric Drain to steal 2 points of Beowulf's health, restoring 2 points to his own.</li>
+                    <ul id="combat-log" class="list-group" style="height: 197px; overflow: scroll">
+                        <li data-t="h" data-id="c02020202">Beowulf lunges with Warrior Strength, inflicting 4 points of damage on Count Dracula.</li>
+                        <li data-t="h" data-id="c01010101">Abraham Van Helsing uses Sacred Weapons to inflict 3 points of damage on Count Dracula.</li>
+                        <li data-t="h" data-id="c03030303">Hermione Granger casts Incendio, igniting Count Dracula for 3 points of Fire Damage.</li>
+                        <li data-t="v" data-id="c01010101">Count Dracula sneers, shouting "I vant to suck your blood!"<br>Count Dracula uses Vampiric Drain to steal 2 points of Beowulf's health, restoring 2 points to his own.</li>
                     </ul>
                 </div>
             </div>
@@ -476,7 +518,6 @@ function UpdateSheet() {
 </div>
 
 <script>
-$('#combatlog').scrollTop($('#combatlog')[0].scrollHeight); // Scroll to most recent (bottom) entry in combat log
 </script>
 
 <?php

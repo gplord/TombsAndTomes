@@ -69,10 +69,12 @@ if ($unready_count > 0) {
     // TODO: Mock up repair query sequence, to placehold for better testing -- add to an "admin" menu
     if ($conn->affected_rows > 0) {
         echo "1";
-        NextTurn($conn, $session_id, $player_order);
     } else {
         echo "Error updating: " . $conn->error;
     }
+
+    // TODO: This should ideally be in the above "affected rows" check, but that can fail if the session is already "ready" for some reason
+    NextTurn($conn, $session_id, $player_order);
 }
 
 // Deactivates all players, sets the next player to active, unreadies them
@@ -97,6 +99,7 @@ function NextTurn($conn, $session_id, $player_order) {
     $next_player_order = $player_order + 1;                             // Next player's player_order: test increment the current player's player order
     if ($next_player_order > $player_count) {                           
         $next_player_order = 1;                                         // Clamp this to 1-[Player Count]
+        VillainTurn($conn, $session_id);
     }
     //echo "<p>Next player: " . $next_player_order . "</p>\n";          // Debug
     
@@ -159,6 +162,114 @@ function SessionUpdate($conn, $session_id) {
     $session_update_result = $conn->query($session_update_query);
     // echo "<p>". $session_update_query . "</p>\n";                    // Debug
 }
+
+function VillainTurn($conn, $session_id) {
+
+    $vinst_id = null;           // TODO: Ideally we'd get this somewhere else, instead of needing an extra query
+    $villain_name = null;        // This too
+    $hinst_id = null;
+    $hero_name = null;
+    $villain_ability = null;
+
+    $get_vinst_id_query = sprintf("SELECT 
+        villain_instance.vinst_id, villain.villain_name
+        FROM villain_instance
+        LEFT JOIN session_villain ON villain_instance.vinst_id = session_villain.vinst_id
+        LEFT JOIN villain ON villain_instance.villain_id = villain.villain_id
+        WHERE villain_instance.vinst_active = 1
+        AND session_villain.session_id = '%s'",
+        $session_id
+    );
+    $get_vinst_id_result = $conn->query($get_vinst_id_query);
+    while ($vinst_row = $get_vinst_id_result->fetch_assoc()) {
+        $vinst_id = $vinst_row["vinst_id"];                                     // Our villain instance id
+        $villain_name = $vinst_row["villain_name"];                             // Our villain name
+    }
+
+    // This will choose one target from the players' party at random, excluding injured or dead heroes
+    $choose_random_target_query = sprintf("SELECT 
+        hero_instance.hinst_id, hero.hero_name FROM hero_instance 
+        LEFT JOIN hero ON hero_instance.hero_id = hero.hero_id
+        LEFT JOIN player_hero_instance ON hero_instance.hinst_id = player_hero_instance.hinst_id 
+        LEFT JOIN player ON player_hero_instance.player_id = player.player_id 
+        LEFT JOIN session_player ON player.player_id = session_player.player_id 
+        WHERE session_player.session_id = '%s' 
+        AND hero_instance.hinst_injured = 0 
+        AND hero_instance.hinst_dead = 0 
+        ORDER BY rand() 
+        LIMIT 1",
+        $session_id
+    );
+    $choose_random_target_result = $conn->query($choose_random_target_query);
+    while ($target_row = $choose_random_target_result->fetch_assoc()) {
+        $hinst_id = $target_row["hinst_id"];                                    // Our random target. Poor them.
+        $hero_name = $target_row["hero_name"];                                  
+    }
+
+    $choose_ability_query = sprintf("SELECT 
+            ability.*, villain_ability.dialogue
+        FROM ability
+        LEFT JOIN villain_ability ON ability.ability_id = villain_ability.ability_id 
+        LEFT JOIN villain ON villain_ability.villain_id = villain.villain_id 
+        LEFT JOIN villain_instance ON villain.villain_id = villain_instance.villain_id 
+        LEFT JOIN villain_instance_ability ON villain_instance_ability.ability_id = ability.ability_id
+        WHERE villain_instance.vinst_id = '%s'
+        AND ability.ability_cost < villain_instance.vinst_energy
+        AND villain_instance_ability.cooldown_left = 0
+        ORDER BY ability.ability_priority 
+        DESC
+        LIMIT 1",
+        $vinst_id
+    );
+    $choose_ability_result = $conn->query($choose_ability_query);
+    while ($ability_result = $choose_ability_result->fetch_assoc()) {
+        $villain_ability = $ability_result;
+    }
+
+    $process_cooldown_query = sprintf("UPDATE
+        villain_instance_ability
+        SET villain_instance_ability.cooldown_left = '%d'
+        WHERE villain_instance_ability.vinst_id = '%s'
+        AND villain_instance_ability.ability_id = '%d'",
+        $villain_ability["ability_cooldown"],
+        $vinst_id,
+        $villain_ability["ability_id"]
+    );
+    $process_cooldown_result = $conn->query($process_cooldown_query);
+
+    $damage_player_query = sprintf("UPDATE
+        hero_instance
+        SET hero_instance.hinst_hp = hero_instance.hinst_hp - %d
+        WHERE hero_instance.hinst_id = '%s'",
+        $villain_ability["ability_damage"],
+        $hinst_id
+    );
+    $damage_player_result = $conn->query($damage_player_query);
+
+    // Lower any existing cooldowns we might have, now that the turn is complete
+    $reduce_cooldowns_query = sprintf("UPDATE 
+        villain_instance_ability
+        SET cooldown_left = cooldown_left - 1 
+        WHERE villain_instance_ability.vinst_id = '%s' 
+        AND cooldown_left > 0",
+        $vinst_id
+    );
+    $reduce_cooldowns_result = $conn->query($reduce_cooldowns_query);
+
+    $log_string = sprintf('<li class="logv" data-t="v" data-id="%s">%s says, "%s"<br><hr>%s attacks %s with %s, inflicting %d points of damage.</li>',
+        $vinst_id, $villain_name, $villain_ability["dialogue"], $villain_name, $hero_name, $villain_ability["ability_name"], $villain_ability["ability_damage"]
+    );
+    $update_log_query = sprintf("UPDATE
+        session
+        SET session.session_log = concat(session.session_log, '%s')
+        WHERE session.session_id = '%s'",
+        $log_string,
+        $session_id
+    );
+    $update_log_result = $conn->query($update_log_query);
+
+}
+
 
 // echo json_encode($readys, JSON_PRETTY_PRINT);
 

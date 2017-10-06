@@ -12,7 +12,7 @@ $player_id = $conn->real_escape_string($_SESSION['player_id']);
 function QueryPlayerHeroInstance($conn, $session_id, $player_id) {
     $hero_instance_query = sprintf("SELECT
         hero_instance.*, hero.hero_name, hero.hero_desc, hero.hero_image, player.player_name, player.player_email, player.player_id,
-        session_player.player_order, session_player.player_current, session_player.player_ready, session_update
+        session_player.player_order, session_player.player_current, session_player.player_ready, session.session_update, session.session_log
         FROM hero_instance
         LEFT JOIN player_hero_instance
             ON hero_instance.hinst_id = player_hero_instance.hinst_id
