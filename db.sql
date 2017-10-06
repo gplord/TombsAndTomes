@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:8889
--- Generation Time: Oct 05, 2017 at 11:36 AM
+-- Generation Time: Oct 06, 2017 at 10:26 AM
 -- Server version: 5.6.33
 -- PHP Version: 7.0.12
 
@@ -43,8 +43,8 @@ INSERT INTO `ability` (`ability_id`, `ability_name`, `ability_type_id`, `ability
 (3, 'Lockpick', 4, 1, 1, 0, 0, 0, 'Tools for breaking through physical locks of up to moderate intricacy.', NULL, 0),
 (4, 'Sacred Weapons', 9, 1, 1, 0, 3, 0, 'A blessed wooden stake, holy water, garlic, and other weapons used in the fighting of demons and other unholy monsters.', NULL, 0),
 (5, 'Claws and Fangs', 1, 1, 0, 0, 2, 0, 'Dracula\'s vicious flurry of vampiric claws and fangs.', NULL, 4),
-(6, 'Blood Drink', 2, 2, 5, 2, 3, 0, 'Dracula leaps upon his target with inhuman speed, drinking their blood to replenish his own health.', 1, 4),
-(7, 'Wolf Pounce', 1, 3, 4, 3, 4, 0, 'Dracula assumes the form of a vicious wolf, leaping upon his prey with a ferocious bite.', NULL, 4),
+(6, 'Blood Drink', 2, 2, 5, 2, 2, 0, 'Dracula leaps upon his target with inhuman speed, drinking their blood to replenish his own health.', 1, 4),
+(7, 'Wolf Pounce', 1, 3, 4, 3, 3, 0, 'Dracula assumes the form of a vicious wolf, leaping upon his prey with a ferocious bite.', NULL, 4),
 (8, 'Brawling/Pistol', 1, 1, 2, 0, 2, 0, 'Sherlock attacks from either close- or long-range, dealing moderate damage.', NULL, 4),
 (9, 'Deduction', 7, 1, 2, 0, 1, 0, 'Sherlock assesses the villain or object before him, revealing its hidden properties.', NULL, 7),
 (10, 'Interrogation', 8, 1, 2, 0, 1, 0, 'Sherlock enters into a game of wits and words with an enemy, expertly revealing information they may be hiding.', NULL, 4),
@@ -325,7 +325,7 @@ CREATE TABLE `session` (
   `session_password` varchar(255) NOT NULL,
   `session_locked` tinyint(1) NOT NULL DEFAULT '0',
   `session_desc` text,
-  `session_log` text,
+  `session_log` mediumtext,
   `session_reward` int(6) DEFAULT NULL,
   `session_complete` tinyint(1) NOT NULL DEFAULT '0',
   `session_player_count` int(2) NOT NULL,
@@ -338,7 +338,7 @@ CREATE TABLE `session` (
 --
 
 INSERT INTO `session` (`session_id`, `session_name`, `session_created`, `session_time`, `session_password`, `session_locked`, `session_desc`, `session_log`, `session_reward`, `session_complete`, `session_player_count`, `session_update`, `session_ready`) VALUES
-('s12345678', 'Example Session', '2017-10-05 09:36:01', '2017-09-12 09:39:16', 'test', 0, 'This is a fake session to test the game.', '(Blank.)', 0, 0, 3, 1, 0),
+('s12345678', 'Example Session', '2017-10-06 07:15:43', '2017-09-12 09:39:16', 'test', 0, 'This is a fake session to test the game.', '', 0, 0, 3, 1, 0),
 ('s22222222', 'Fake Second Session', '2017-10-05 07:06:43', '2017-09-19 04:57:19', 'password', 0, 'This one exists just to make sure we\'re selecting the right one.', '(Blank.)', NULL, 0, 3, 1, 1);
 
 -- --------------------------------------------------------
@@ -640,7 +640,7 @@ INSERT INTO `villain_instance` (`vinst_id`, `villain_id`, `vinst_level`, `vinst_
 CREATE TABLE `villain_instance_ability` (
   `vinst_id` varchar(9) NOT NULL,
   `ability_id` int(3) NOT NULL,
-  `cooldown_left` int(2) NOT NULL
+  `cooldown_left` int(2) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -648,9 +648,9 @@ CREATE TABLE `villain_instance_ability` (
 --
 
 INSERT INTO `villain_instance_ability` (`vinst_id`, `ability_id`, `cooldown_left`) VALUES
-('v10101010', 5, 0),
-('v10101010', 6, 1),
-('v10101010', 7, 0);
+('i10101010', 5, 0),
+('i10101010', 6, 0),
+('i10101010', 7, 0);
 
 -- --------------------------------------------------------
 
