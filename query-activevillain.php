@@ -63,6 +63,18 @@ function QueryVillainInstanceEffects($conn, $vinst_id) {
     return $effects;
 }
 
+function QueryVillainInstanceResistances($conn, $villain_id) {
+    $resistance_query = sprintf("SELECT
+        villain_element.*
+        FROM villain_element
+        WHERE villain_element.villain_id = '%s'",
+        $villain_id);
+    $resistance_result = $conn->query($resistance_query);
+    $resistances = array();
+    $resistances = $resistance_result->fetch_all(MYSQLI_ASSOC);
+    return $resistances;
+}
+
 $villain_instances = QueryActiveVillainInstance($conn, $session_id);
 
 foreach ($villain_instances as &$villain_instance) {
@@ -75,6 +87,11 @@ foreach ($villain_instances as &$villain_instance) {
     $effects = QueryVillainInstanceEffects($conn, $villain_instance['vinst_id']);
     for ($i = 0; $i < count($effects); $i++) {
         $villain_instance['effects'][$i] = $effects[$i];
+    }
+
+    $resistances = QueryVillainInstanceResistances($conn, $villain_instance['villain_id']);
+    for ($i = 0; $i < count($resistances); $i++) {
+        $villain_instance['resistances'][$i] = $resistances[$i];
     }
 
 }

@@ -2,15 +2,15 @@
 session_start();
 $conn = new mysqli("localhost", "root", "root", "dungeon");
 
-$ability_type_id = $conn->real_escape_string($_POST['ability_type_id']);
-$ability_damage = $conn->real_escape_string($_POST['ability_damage']);
-$vinst_id = $conn->real_escape_string($_POST['vinst_id']);
-$hero_name = $conn->real_escape_string($_POST['hero_name']);
-$villain_name = $conn->real_escape_string($_POST['villain_name']);
-$ability_name = $conn->real_escape_string($_POST['ability_name']);
-$element_id = $conn->real_escape_string($_POST['element_id']);
-$element_name = $conn->real_escape_string($_POST['element_name']);
-$hinst_id = $conn->real_escape_string($_POST['hinst_id']);
+$ability_type_id = 2;
+$ability_damage = 2;
+$vinst_id = "i10101010";
+$hero_name = "Hermione";
+$villain_name = "Count Dracula";
+$ability_name = "Incendio";
+$element_id = 1;
+$element_name = "Fire";
+$hinst_id = "c01010101";
 
 $session_id = $conn->real_escape_string($_SESSION['session_id']);
 
@@ -32,27 +32,33 @@ $element_resists = array();
 $element_resists = $element_resist_result->fetch_all(MYSQLI_ASSOC);
 
 foreach ($element_resists as $resist) {
+    echo "<pre>\n";
+    print_r($resist);
+    echo "</pre>\n";
     if ($resist["element_id"] == $element_id) {
+        echo "<p>Element id matches: " . $element_id . "</p>\n";
         $ability_modified_damage = round($ability_damage * $resist["element_resist"]);
+        echo "<p>ability_modified_damage: " . $ability_modified_damage . "</p>\n";
     }
 }
 
-// TODO: Add damage strengths/weaknesses as part of this processing
-$process_damage_query = sprintf("UPDATE
-    villain_instance
-    SET villain_instance.vinst_hp = villain_instance.vinst_hp - %d
-    WHERE villain_instance.vinst_id = '%s'",
-    $ability_modified_damage,                   // Even if no elements changed this, it should hold the original value by default
-    $vinst_id
-);
-$process_damage_result = $conn->query($process_damage_query);
-if ($conn->affected_rows > 0) {
-    echo "1";
-} else {
-    echo "Error: " . $conn->error;
-}
 
-$log_string = "";
+
+// // TODO: Add damage strengths/weaknesses as part of this processing
+// $process_damage_query = sprintf("UPDATE
+//     villain_instance
+//     SET villain_instance.vinst_hp = villain_instance.vinst_hp - %d
+//     WHERE villain_instance.vinst_id = '%s'",
+//     $ability_damage,
+//     $vinst_id
+// );
+// $process_damage_result = $conn->query($process_damage_query);
+// if ($conn->affected_rows > 0) {
+//     echo "1";
+// } else {
+//     echo "Error: " . $conn->error;
+// }
+
 if ($ability_modified_damage > $ability_damage) {
     $log_string = sprintf('<li data-t="h" data-id="%s">%s attacks %s with %s. The attack seems especially effective, inflicting %d points of damage, plus an additional %d points of %s damage!</li>',
         $hinst_id, $hero_name, $villain_name, $ability_name, $ability_damage, ($ability_modified_damage - $ability_damage), $element_name
@@ -66,13 +72,16 @@ if ($ability_modified_damage > $ability_damage) {
         $hinst_id, $hero_name, $villain_name, $ability_name, $ability_damage
     );
 }
-$update_log_query = sprintf("UPDATE
-    session
-    SET session.session_log = concat(session.session_log, '%s')
-    WHERE session.session_id = '%s'",
-    $log_string,
-    $session_id
-);
-$update_log_result = $conn->query($update_log_query);
+
+echo "<p>Log: " . $log_string . "</p>\n";
+
+// $update_log_query = sprintf("UPDATE
+//     session
+//     SET session.session_log = concat(session.session_log, '%s')
+//     WHERE session.session_id = '%s'",
+//     $log_string,
+//     $session_id
+// );
+// $update_log_result = $conn->query($update_log_query);
 
 ?>

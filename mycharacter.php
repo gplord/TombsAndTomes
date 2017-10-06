@@ -32,9 +32,11 @@ $(document).ready(function(){
         // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
         var modal = $(this);
         modal.find('.modal-title').text(ability.ability_name);
-        modal.find('.modal-body').text("You attack " + activevillain.villain_name + " with your " + ability.ability_name + ", inflicting " + ability.ability_damage + " points of damage!");
+        var elementText = '';
+        if (ability.element_name != null) elementText = ability.element_name;
+        modal.find('.modal-body').text("You attack " + activevillain.villain_name + " with your " + ability.ability_name + ", inflicting " + ability.ability_damage + " points of " + elementText + " damage!");
 
-        ProcessDamage(ability.ability_type_id, ability.ability_damage, activevillain.vinst_id, mycharacter.hero_name, activevillain.villain_name, ability.ability_name, mycharacter.hinst_id);
+        ProcessDamage(ability.ability_type_id, ability.ability_damage, activevillain.vinst_id, mycharacter.hero_name, activevillain.villain_name, ability.ability_name, ability.element_id, ability.element_name, mycharacter.hinst_id);
     });
 
     // Function to handle closing Ability Modal, which posts to a ReadyPlayer query
@@ -45,9 +47,17 @@ $(document).ready(function(){
         console.log("Player readied.  Next player activated.")
     });
 
+    $( ".abilitytest" ).click(function() {
+        RequestDamageResult($(this).attr("data-abilityid"));
+    });
+
 });
 
-function ProcessDamage(ability_type_id, ability_damage, vinst_id, hero_name, villain_name, ability_name, hinst_id) {
+function RequestDamageResult(ability_id) {
+    console.log("Retrieved id: " + ability_id);
+}
+
+function ProcessDamage(ability_type_id, ability_damage, vinst_id, hero_name, villain_name, ability_name, element_id, element_name, hinst_id) {
     console.log("Processing damage: " + ability_type_id + " / " + ability_damage + " / " + vinst_id);
     $.post( "query-processdamage.php", { 
         'ability_type_id': ability_type_id, 
@@ -56,6 +66,8 @@ function ProcessDamage(ability_type_id, ability_damage, vinst_id, hero_name, vil
         'hero_name': hero_name,
         "villain_name": villain_name,
         "ability_name": ability_name,
+        "element_id": element_id,
+        "element_name": element_name,
         "hinst_id": hinst_id
     })
     .done(function( data ) {
@@ -151,9 +163,15 @@ function UpdateSheet() {
             $.each (hero.abilities, function(i, ability) {
                 var newblock = $("#ability-block").clone().appendTo("#mycharacter-abilities");
                 newblock.find(".ability-name").text(ability.ability_name);
+                if (ability.element_id > 0) {                     // Any element 
+                    console.log(ability.element_id + ": " + ability.element_name);
+                    newblock.find(".ability-element").text("[Element: " + ability.element_name + "] ");
+                } else {                                            // 0 is the default Physical element, which can be assumed and now shown
+                    newblock.find(".ability-element").text("");
+                }
                 newblock.find(".ability-desc").text(ability.ability_desc);
                 newblock.find(".ability-button" ).attr( "data-abilityid", i );
-                newblock.collapse().show();
+                newblock.collapse('show');
             });
             // For each effect, clone and append an effect block with the effect info
             $.each (hero.effects, function(i, effect) {
@@ -205,7 +223,7 @@ function UpdateSheet() {
     $.post( "query-activevillain.php", {})
     .done(function( data ) {
         var content = JSON.parse(data);
-        // console.log(content);   // Debug
+        console.log(content);   // Debug
 
         // For every villain returned (should be only one)
         $.each(content, function(i, villain) { 
@@ -254,6 +272,9 @@ function UpdateSheet() {
 }
 
 </script>
+
+<!-- In progress: building a damage processing request that returns the damage message to the client, with elemental adjustments -->
+<!-- <button type="button" class="abilitytest currentturn btn btn-primary mt-2 ability-button" data-abilityid="444">Use this Ability</button> -->
 
 <div class="container mt-3">
 
@@ -475,15 +496,13 @@ function UpdateSheet() {
 
 </div>
 
-<!-- This block holds and hides the templates jQuery can use to constitute the dynamic blocks the sheet will load -->
-<div class="invisible">
-
     <!-- Template block for jQuery to clone in creating new abilities from the database -->
     <li id="ability-block" class="list-group-item collapse">
         <div class="media">
             <img class="ability-image d-flex mr-3" src="/images/icon-placeholder.png" alt="Generic placeholder image" style="width: 72px">
             <div class="media-body">
                 <h5 class="ability-name">[ Ability Name ]</h5>
+                <span class="ability-element">[ Ability Element ]</span>
                 <span class="ability-desc">[ Ability Description ]</span>
             </div>
         </div>
@@ -491,6 +510,11 @@ function UpdateSheet() {
             <button type="button" class="currentturn btn btn-primary mt-2 ability-button" data-toggle="modal" data-target="#abilityModal" data-abilityid="">Use this Ability</button>
         </div>
     </li>
+
+<!-- This block holds and hides the templates jQuery can use to constitute the dynamic blocks the sheet will load -->
+<div class="invisible">
+
+
 
     <!-- Template block for jQuery to clone in creating new Villain abilities (same as above, without interaction buttons)-->
     <li class="list-group-item collapse" id="ability-block-villain">

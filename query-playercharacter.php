@@ -37,7 +37,7 @@ function QueryPlayerHeroInstance($conn, $session_id, $player_id) {
 
 function QueryHeroAbilities($conn, $hero_id) {
     $ability_query = sprintf("SELECT
-        ability.*, effect.*, type_ability.*
+        ability.*, effect.*, type_ability.*, element.*
         FROM hero_ability
         LEFT JOIN ability
             ON ability.ability_id = hero_ability.ability_id
@@ -45,6 +45,8 @@ function QueryHeroAbilities($conn, $hero_id) {
             ON type_ability.ability_type_id = ability.ability_type_id
         LEFT JOIN effect
             ON ability.effect_id = effect.effect_id
+        LEFT JOIN element
+            ON ability.element_id = element.element_id
         LEFT JOIN hero
             ON hero_ability.hero_id = hero.hero_id
         WHERE hero.hero_id = '%d'",

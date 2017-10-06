@@ -15,3 +15,7 @@
 .modal-footer.modal-ready {
     justify-content: center;
 }
+
+.ability-element {
+    font-weight: bold;
+}
