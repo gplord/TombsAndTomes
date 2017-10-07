@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:8889
--- Generation Time: Oct 07, 2017 at 03:56 PM
+-- Generation Time: Oct 07, 2017 at 10:42 PM
 -- Server version: 5.6.33
 -- PHP Version: 7.0.12
 
@@ -42,19 +42,19 @@ CREATE TABLE `ability` (
 INSERT INTO `ability` (`ability_id`, `ability_name`, `ability_type_id`, `element_id`, `ability_priority`, `ability_cost`, `ability_cooldown`, `ability_damage`, `ability_levelreq`, `ability_desc`, `effect_id`, `target_type_id`) VALUES
 (1, 'Revolver / Knife', 1, 0, 1, 2, 0, 2, 0, 'Van Helsing\'s trusted weapons, able to fight both people and monsters, near and far.', NULL, 0),
 (3, 'Lockpick', 4, 0, 1, 1, 0, 0, 0, 'Tools for breaking through physical locks of up to moderate intricacy.', NULL, 0),
-(4, 'Sacred Weapons', 9, 3, 1, 1, 0, 3, 0, 'A blessed wooden stake, holy water, garlic, and other weapons used in the fighting of demons and other unholy monsters.', NULL, 0),
+(4, 'Sacred Weapons', 9, 3, 1, 3, 0, 3, 0, 'A blessed wooden stake, holy water, garlic, and other weapons used in the fighting of demons and other unholy monsters.', NULL, 0),
 (5, 'Claws and Fangs', 1, 0, 1, 0, 0, 2, 0, 'Dracula\'s vicious flurry of vampiric claws and fangs.', NULL, 4),
 (6, 'Blood Drink', 2, 4, 2, 5, 2, 2, 0, 'Dracula leaps upon his target with inhuman speed, drinking their blood to replenish his own health.', 1, 4),
 (7, 'Bat Bite', 1, 0, 3, 4, 3, 3, 0, 'Dracula assumes the form of a giant bat, swooping upon his prey with a ferocious bite.', NULL, 4),
 (8, 'Brawling/Pistol', 1, 0, 1, 2, 0, 2, 0, 'Sherlock attacks from either close- or long-range, dealing moderate damage.', NULL, 4),
-(9, 'Deduction', 7, 0, 1, 2, 0, 1, 0, 'Sherlock assesses the villain or object before him, revealing its hidden properties.', NULL, 7),
+(9, 'Deduction', 7, 0, 1, 1, 0, 1, 0, 'Sherlock assesses the villain or object before him, revealing its hidden properties.', NULL, 7),
 (10, 'Interrogation', 8, 0, 1, 2, 0, 1, 0, 'Sherlock enters into a game of wits and words with an enemy, expertly revealing information they may be hiding.', NULL, 4),
 (11, 'Sword and Shield', 1, 0, 1, 2, 0, 3, 0, 'Beowulf attacks the villain with his sword and shield, dealing physical damage and protecting himself from incoming damage on the villain\'s next turn.', NULL, 4),
 (12, 'Legendary Strength', 1, 0, 1, 3, 0, 4, 0, 'Beowulf lunges, grappling with his brute strength, dealing additional physical damage but leaving himself vulnerable to additional damage on the villain\'s next attack.', NULL, 4),
 (13, 'Commanding Presence', 5, 0, 1, 3, 1, 1, 0, 'Beowulf does not attack this turn, but instead commands the battle, inspiring his allies to both deal more damage and receive less damage for the next two turns.', NULL, 8),
-(14, 'Incendio (Flame)', 2, 1, 1, 2, 0, 2, 0, 'Hermione sends a blast of fire from her wand, burning a single enemy.', NULL, 4),
+(14, 'Incendio (Flame)', 2, 1, 1, 3, 0, 2, 0, 'Hermione sends a blast of fire from her wand, burning a single enemy.', NULL, 4),
 (15, 'Vulnera Sanentur (Mend Wounds)', 0, 0, 1, 2, 0, -3, 0, 'Hermione heals a single ally, or herself, from light damage.', NULL, 2),
-(16, 'Brew Potion', 0, 0, 1, 2, 0, -3, 0, 'Hermione brews a random potion, which is added to the party\'s inventory.', NULL, 1);
+(16, 'Brew Potion', 0, 0, 1, 1, 0, -3, 0, 'Hermione brews a random potion, which is added to the party\'s inventory.', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -362,7 +362,7 @@ CREATE TABLE `session` (
 --
 
 INSERT INTO `session` (`session_id`, `session_name`, `session_created`, `session_time`, `session_password`, `session_locked`, `session_desc`, `session_log`, `session_reward`, `session_complete`, `session_player_count`, `session_update`, `session_ready`) VALUES
-('s12345678', 'Example Session', '2017-10-07 13:55:09', '2017-09-12 09:39:16', 'test', 0, 'This is a fake session to test the game.', '', 0, 0, 3, 1, 0),
+('s12345678', 'Example Session', '2017-10-07 20:40:31', '2017-09-12 09:39:16', 'test', 0, 'This is a fake session to test the game.', '', 0, 0, 3, 1, 0),
 ('s22222222', 'Fake Second Session', '2017-10-05 07:06:43', '2017-09-19 04:57:19', 'password', 0, 'This one exists just to make sure we\'re selecting the right one.', '(Blank.)', NULL, 0, 3, 1, 1);
 
 -- --------------------------------------------------------

@@ -8,6 +8,7 @@ $vinst_id = $conn->real_escape_string($_POST['vinst_id']);
 $hero_name = $conn->real_escape_string($_POST['hero_name']);
 $villain_name = $conn->real_escape_string($_POST['villain_name']);
 $ability_name = $conn->real_escape_string($_POST['ability_name']);
+$ability_cost = $conn->real_escape_string($_POST['ability_cost']);
 $element_id = $conn->real_escape_string($_POST['element_id']);
 $element_name = $conn->real_escape_string($_POST['element_name']);
 $hinst_id = $conn->real_escape_string($_POST['hinst_id']);
@@ -46,6 +47,16 @@ $process_damage_query = sprintf("UPDATE
     $vinst_id
 );
 $process_damage_result = $conn->query($process_damage_query);
+
+// TODO: Confirm availability of energy this ability costs
+$update_energy_query = sprintf("UPDATE
+hero_instance
+SET hero_instance.hinst_energy = hero_instance.hinst_energy - %d
+WHERE hero_instance.hinst_id = '%s'",
+$ability_cost,                   // Even if no elements changed this, it should hold the original value by default
+$hinst_id
+);
+$update_energy_result = $conn->query($update_energy_query);
 
 $log_string = "";
 if ($ability_modified_damage > $ability_damage) {

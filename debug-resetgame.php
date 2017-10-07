@@ -21,6 +21,9 @@ $query_array = array(
     "UPDATE `hero_instance` SET `hinst_hp` = `hinst_hp_max` WHERE `hero_instance`.`hinst_id` = 'c01010101'",
     "UPDATE `hero_instance` SET `hinst_hp` = `hinst_hp_max` WHERE `hero_instance`.`hinst_id` = 'c02020202'",
     "UPDATE `hero_instance` SET `hinst_hp` = `hinst_hp_max` WHERE `hero_instance`.`hinst_id` = 'c03030303'",
+    "UPDATE `hero_instance` SET `hinst_energy` = `hinst_energy_max` WHERE `hero_instance`.`hinst_id` = 'c01010101'",
+    "UPDATE `hero_instance` SET `hinst_energy` = `hinst_energy_max` WHERE `hero_instance`.`hinst_id` = 'c02020202'",
+    "UPDATE `hero_instance` SET `hinst_energy` = `hinst_energy_max` WHERE `hero_instance`.`hinst_id` = 'c03030303'",
     "UPDATE `villain_instance_ability` SET `cooldown_left` = 0 WHERE `villain_instance_ability`.`vinst_id` = 'i10101010' AND `cooldown_left` > 0"
 );
 

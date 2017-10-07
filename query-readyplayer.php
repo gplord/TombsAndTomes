@@ -126,6 +126,24 @@ function NextTurn($conn, $session_id, $player_order) {
     $activate_next_player_result = $conn->query($activate_next_player_query);
     // echo "<p>". $activate_next_player_query . "</p>\n";              // Debug
 
+    // Recover one of the new player's energy points (if they're at less than max) at the beginning of their turn
+    $recover_energy_query = sprintf("UPDATE 
+        hero_instance 
+        JOIN player_hero_instance
+            ON hero_instance.hinst_id = player_hero_instance.hinst_id
+        JOIN session_player
+            ON player_hero_instance.player_id = session_player.player_id
+        SET hero_instance.hinst_energy = hero_instance.hinst_energy + 1
+        WHERE session_player.session_id = '%s'
+        AND session_player.player_order = '%d'
+        AND hero_instance.hinst_energy < hero_instance.hinst_energy_max",
+        $session_id,
+        $next_player_order
+    );  
+    $recover_energy_result = $conn->query($recover_energy_query);
+
+
+
     // Update the Session Update value, to signal to all other clients that this change has happened
     SessionUpdate($conn, $session_id);
 

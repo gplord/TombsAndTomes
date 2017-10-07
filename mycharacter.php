@@ -35,15 +35,19 @@ $(document).ready(function(){
         console.log("Requesting damage result.");
         var abilityid = $(this).attr("data-abilityid"); // Extract info from data-* attributes
         var ability = mycharacter.abilities[abilityid];
-        RequestDamageResult(ability.ability_type_id, ability.ability_damage, activevillain.vinst_id, mycharacter.hero_name, activevillain.villain_name, ability.ability_name, ability.element_id, ability.element_name, mycharacter.hinst_id);
+        if (mycharacter.hinst_energy >= ability.ability_cost) {
+            RequestDamageResult(ability.ability_type_id, ability.ability_damage, activevillain.vinst_id, mycharacter.hero_name, activevillain.villain_name, ability.ability_name, ability.ability_cost, ability.element_id, ability.element_name, mycharacter.hinst_id);
+        } else {
+            modal = $('#errorModal').modal('show');
+        }
     });
 
 });
 
 // Post to query-processdamage.php, which handles calculating and dealing damage
 // Post returns data object with damage message, for modal display, or fails
-function RequestDamageResult(ability_type_id, ability_damage, vinst_id, hero_name, villain_name, ability_name, element_id, element_name, hinst_id) {
-    console.log("Processing damage: " + ability_type_id + " / " + ability_damage + " / " + vinst_id);
+function RequestDamageResult(ability_type_id, ability_damage, vinst_id, hero_name, villain_name, ability_name, ability_cost, element_id, element_name, hinst_id) {
+    // console.log("Processing damage: " + ability_type_id + " / " + ability_damage + " / " + vinst_id);
     $.post( "query-processdamage.php", { 
         'ability_type_id': ability_type_id, 
         'ability_damage': ability_damage, 
@@ -51,6 +55,7 @@ function RequestDamageResult(ability_type_id, ability_damage, vinst_id, hero_nam
         'hero_name': hero_name,
         "villain_name": villain_name,
         "ability_name": ability_name,
+        "ability_cost": ability_cost,
         "element_id": element_id,
         "element_name": element_name,
         "hinst_id": hinst_id
@@ -185,6 +190,7 @@ function UpdateSheet() {
                 } else {                                            // 0 is the default Physical element, which can be assumed and now shown
                     newblock.find(".ability-element").text("");
                 }
+                newblock.find(".ability-cost").html("<strong>" + ability.ability_cost + " Energy</strong>");
                 newblock.find(".ability-desc").text(ability.ability_desc);
                 newblock.find(".ability-use" ).attr( "data-abilityid", i );
                 newblock.collapse('show');
@@ -326,6 +332,26 @@ function UpdateSheet() {
                 </div>
                 <div class="modal-footer text-center modal-ready">
                     <button type="button" class="btn btn-success" data-dismiss="modal">Ready</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="exampleModalLabel">Not Enough Energy!</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    You don't have enough energy to use this ability.<br><br>Wait until a future turn when you have recovered some of your energy. (Energy recovers at 1 Energy per turn.)
+                </div>
+                <div class="modal-footer text-center modal-ready">
+                    <button type="button" class="btn btn-success" data-dismiss="modal">Okay</button>
                 </div>
             </div>
         </div>
@@ -538,7 +564,10 @@ function UpdateSheet() {
     <!-- Template block for jQuery to clone in creating new abilities from the database -->
     <li id="ability-block" class="list-group-item collapse">
         <div class="media">
+            <div>
             <img class="ability-image d-flex mr-3" src="/images/icon-placeholder.png" alt="Generic placeholder image" style="width: 72px">
+            <span class="ability-cost">2 Energy</span>
+            </div>
             <div class="media-body">
                 <h5 class="ability-name">[ Ability Name ]</h5>
                 <span class="ability-element">[ Ability Element ]</span>
