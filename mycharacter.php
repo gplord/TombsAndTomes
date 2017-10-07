@@ -20,25 +20,6 @@ $(document).ready(function(){
     UpdateSheet();                                          // Initial page load
     setInterval(function() { UpdatePoll() }, pollTimeout);  // Begin regular polling at interval set above
 
-    // Called when showing Ability Modal, gathers Ability info from ID field, populates Modal window
-    // Posts to damage processing query, which inflicts damage to the current villain
-    // TODO: Hand off only the Hero Instance ID and Ability ID, to let the server process damage, instead of the client
-    $('#abilityModal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget) // Button that triggered the modal
-        var abilityid = button.data('abilityid') // Extract info from data-* attributes
-        console.log(mycharacter.abilities[abilityid]);
-        var ability = mycharacter.abilities[abilityid];
-        // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
-        // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
-        var modal = $(this);
-        modal.find('.modal-title').text(ability.ability_name);
-        var elementText = '';
-        if (ability.element_name != null) elementText = ability.element_name;
-        modal.find('.modal-body').text("You attack " + activevillain.villain_name + " with your " + ability.ability_name + ", inflicting " + ability.ability_damage + " points of " + elementText + " damage!");
-
-        ProcessDamage(ability.ability_type_id, ability.ability_damage, activevillain.vinst_id, mycharacter.hero_name, activevillain.villain_name, ability.ability_name, ability.element_id, ability.element_name, mycharacter.hinst_id);
-    });
-
     // Function to handle closing Ability Modal, which posts to a ReadyPlayer query
     $('#abilityModal').on('hide.bs.modal', function (e) {
         console.log("Closed message.");
@@ -47,14 +28,49 @@ $(document).ready(function(){
         console.log("Player readied.  Next player activated.")
     });
 
-    $( ".abilitytest" ).click(function() {
-        RequestDamageResult($(this).attr("data-abilityid"));
+    // Called when clicking ability button, gathers Ability info from ID field, populates Modal window
+    // Posts to damage processing query, which inflicts damage to the current villain
+    // TODO: Hand off only the Hero Instance ID and Ability ID, to let the server process damage, instead of the client
+    $("#mycharacter-abilities").on("click", ".ability-use", function() {
+        console.log("Requesting damage result.");
+        var abilityid = $(this).attr("data-abilityid"); // Extract info from data-* attributes
+        var ability = mycharacter.abilities[abilityid];
+        RequestDamageResult(ability.ability_type_id, ability.ability_damage, activevillain.vinst_id, mycharacter.hero_name, activevillain.villain_name, ability.ability_name, ability.element_id, ability.element_name, mycharacter.hinst_id);
     });
 
 });
 
-function RequestDamageResult(ability_id) {
-    console.log("Retrieved id: " + ability_id);
+// Post to query-processdamage.php, which handles calculating and dealing damage
+// Post returns data object with damage message, for modal display, or fails
+function RequestDamageResult(ability_type_id, ability_damage, vinst_id, hero_name, villain_name, ability_name, element_id, element_name, hinst_id) {
+    console.log("Processing damage: " + ability_type_id + " / " + ability_damage + " / " + vinst_id);
+    $.post( "query-processdamage.php", { 
+        'ability_type_id': ability_type_id, 
+        'ability_damage': ability_damage, 
+        'vinst_id': vinst_id,
+        'hero_name': hero_name,
+        "villain_name": villain_name,
+        "ability_name": ability_name,
+        "element_id": element_id,
+        "element_name": element_name,
+        "hinst_id": hinst_id
+    })
+    .done(function( data ) {
+        // console.log(data);   // Debug
+        if (data == "0") {
+            // TODO: Replace with error message from post
+            console.log("Error processing Villain damage");
+        } else {
+            console.log("Damage result returned.");
+            var modal = $('#abilityModal');
+            modal.find('.modal-title').text(ability_name);
+            var returnHtml = $.parseHTML( data );                                       // Parse the html message (which is nested in an li element, for the log)
+            modal.find('.modal-body').html(returnHtml);
+            // TODO: Quick hack here, should get li content from first parse, rather than writing twice
+            modal.find('.modal-body').text(modal.find('.modal-body li').text());        // Write the return message into the modal body
+            modal.modal('show');    // Successfully got message and populated modal, display it here
+        }
+    });
 }
 
 function ProcessDamage(ability_type_id, ability_damage, vinst_id, hero_name, villain_name, ability_name, element_id, element_name, hinst_id) {
@@ -170,7 +186,7 @@ function UpdateSheet() {
                     newblock.find(".ability-element").text("");
                 }
                 newblock.find(".ability-desc").text(ability.ability_desc);
-                newblock.find(".ability-button" ).attr( "data-abilityid", i );
+                newblock.find(".ability-use" ).attr( "data-abilityid", i );
                 newblock.collapse('show');
             });
             // For each effect, clone and append an effect block with the effect info
@@ -272,9 +288,6 @@ function UpdateSheet() {
 }
 
 </script>
-
-<!-- In progress: building a damage processing request that returns the damage message to the client, with elemental adjustments -->
-<!-- <button type="button" class="abilitytest currentturn btn btn-primary mt-2 ability-button" data-abilityid="444">Use this Ability</button> -->
 
 <div class="container mt-3">
 
@@ -496,25 +509,8 @@ function UpdateSheet() {
 
 </div>
 
-    <!-- Template block for jQuery to clone in creating new abilities from the database -->
-    <li id="ability-block" class="list-group-item collapse">
-        <div class="media">
-            <img class="ability-image d-flex mr-3" src="/images/icon-placeholder.png" alt="Generic placeholder image" style="width: 72px">
-            <div class="media-body">
-                <h5 class="ability-name">[ Ability Name ]</h5>
-                <span class="ability-element">[ Ability Element ]</span>
-                <span class="ability-desc">[ Ability Description ]</span>
-            </div>
-        </div>
-        <div class="currentturn collapse text-center">
-            <button type="button" class="currentturn btn btn-primary mt-2 ability-button" data-toggle="modal" data-target="#abilityModal" data-abilityid="">Use this Ability</button>
-        </div>
-    </li>
-
 <!-- This block holds and hides the templates jQuery can use to constitute the dynamic blocks the sheet will load -->
 <div class="invisible">
-
-
 
     <!-- Template block for jQuery to clone in creating new Villain abilities (same as above, without interaction buttons)-->
     <li class="list-group-item collapse" id="ability-block-villain">
@@ -536,6 +532,21 @@ function UpdateSheet() {
                 <strong>(<span class="effect-duration">#</span> Turn(s) Remaining)</strong><br>
                 <span class="effect-desc">[ Effect Description ]</span>
             </div>
+        </div>
+    </li>
+
+    <!-- Template block for jQuery to clone in creating new abilities from the database -->
+    <li id="ability-block" class="list-group-item collapse">
+        <div class="media">
+            <img class="ability-image d-flex mr-3" src="/images/icon-placeholder.png" alt="Generic placeholder image" style="width: 72px">
+            <div class="media-body">
+                <h5 class="ability-name">[ Ability Name ]</h5>
+                <span class="ability-element">[ Ability Element ]</span>
+                <span class="ability-desc">[ Ability Description ]</span>
+            </div>
+        </div>
+        <div class="currentturn collapse text-center">
+            <button type="button" class="ability-use currentturn btn btn-primary mt-2" data-abilityid="">Use this Ability</button>
         </div>
     </li>
 

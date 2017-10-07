@@ -46,11 +46,6 @@ $process_damage_query = sprintf("UPDATE
     $vinst_id
 );
 $process_damage_result = $conn->query($process_damage_query);
-if ($conn->affected_rows > 0) {
-    echo "1";
-} else {
-    echo "Error: " . $conn->error;
-}
 
 $log_string = "";
 if ($ability_modified_damage > $ability_damage) {
@@ -74,5 +69,13 @@ $update_log_query = sprintf("UPDATE
     $session_id
 );
 $update_log_result = $conn->query($update_log_query);
+
+if ($conn->affected_rows > 0) {
+    echo $log_string;
+} else {
+    //echo "Error: " . $conn->error;
+    // TODO: Replace this with a more meaningful error state, to be handled by the requesting script
+    echo "0";
+}
 
 ?>

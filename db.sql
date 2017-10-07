@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:8889
--- Generation Time: Oct 06, 2017 at 11:56 PM
+-- Generation Time: Oct 07, 2017 at 03:56 PM
 -- Server version: 5.6.33
 -- PHP Version: 7.0.12
 
@@ -45,7 +45,7 @@ INSERT INTO `ability` (`ability_id`, `ability_name`, `ability_type_id`, `element
 (4, 'Sacred Weapons', 9, 3, 1, 1, 0, 3, 0, 'A blessed wooden stake, holy water, garlic, and other weapons used in the fighting of demons and other unholy monsters.', NULL, 0),
 (5, 'Claws and Fangs', 1, 0, 1, 0, 0, 2, 0, 'Dracula\'s vicious flurry of vampiric claws and fangs.', NULL, 4),
 (6, 'Blood Drink', 2, 4, 2, 5, 2, 2, 0, 'Dracula leaps upon his target with inhuman speed, drinking their blood to replenish his own health.', 1, 4),
-(7, 'Wolf Pounce', 1, 0, 3, 4, 3, 3, 0, 'Dracula assumes the form of a vicious wolf, leaping upon his prey with a ferocious bite.', NULL, 4),
+(7, 'Bat Bite', 1, 0, 3, 4, 3, 3, 0, 'Dracula assumes the form of a giant bat, swooping upon his prey with a ferocious bite.', NULL, 4),
 (8, 'Brawling/Pistol', 1, 0, 1, 2, 0, 2, 0, 'Sherlock attacks from either close- or long-range, dealing moderate damage.', NULL, 4),
 (9, 'Deduction', 7, 0, 1, 2, 0, 1, 0, 'Sherlock assesses the villain or object before him, revealing its hidden properties.', NULL, 7),
 (10, 'Interrogation', 8, 0, 1, 2, 0, 1, 0, 'Sherlock enters into a game of wits and words with an enemy, expertly revealing information they may be hiding.', NULL, 4),
@@ -362,7 +362,7 @@ CREATE TABLE `session` (
 --
 
 INSERT INTO `session` (`session_id`, `session_name`, `session_created`, `session_time`, `session_password`, `session_locked`, `session_desc`, `session_log`, `session_reward`, `session_complete`, `session_player_count`, `session_update`, `session_ready`) VALUES
-('s12345678', 'Example Session', '2017-10-06 21:55:51', '2017-09-12 09:39:16', 'test', 0, 'This is a fake session to test the game.', '', 0, 0, 3, 1, 0),
+('s12345678', 'Example Session', '2017-10-07 13:55:09', '2017-09-12 09:39:16', 'test', 0, 'This is a fake session to test the game.', '', 0, 0, 3, 1, 0),
 ('s22222222', 'Fake Second Session', '2017-10-05 07:06:43', '2017-09-19 04:57:19', 'password', 0, 'This one exists just to make sure we\'re selecting the right one.', '(Blank.)', NULL, 0, 3, 1, 1);
 
 -- --------------------------------------------------------
@@ -622,7 +622,7 @@ CREATE TABLE `villain_ability` (
 INSERT INTO `villain_ability` (`villain_id`, `ability_id`, `dialogue`) VALUES
 (1, 5, 'Enough talk!  Have at you!'),
 (1, 6, 'I vant... to drink... your blood!'),
-(1, 7, 'Awooooo!');
+(1, 7, 'I am the terror that flaps in the night!');
 
 -- --------------------------------------------------------
 
@@ -833,6 +833,12 @@ ALTER TABLE `type_task`
 ALTER TABLE `villain`
   ADD PRIMARY KEY (`villain_id`),
   ADD UNIQUE KEY `villain_id` (`villain_id`);
+
+--
+-- Indexes for table `villain_ability`
+--
+ALTER TABLE `villain_ability`
+  ADD UNIQUE KEY `villain_id` (`villain_id`,`ability_id`);
 
 --
 -- Indexes for table `villain_element`
