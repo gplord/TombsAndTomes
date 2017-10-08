@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:8889
--- Generation Time: Oct 07, 2017 at 10:42 PM
+-- Generation Time: Oct 08, 2017 at 06:53 PM
 -- Server version: 5.6.33
 -- PHP Version: 7.0.12
 
@@ -55,6 +55,18 @@ INSERT INTO `ability` (`ability_id`, `ability_name`, `ability_type_id`, `element
 (14, 'Incendio (Flame)', 2, 1, 1, 3, 0, 2, 0, 'Hermione sends a blast of fire from her wand, burning a single enemy.', NULL, 4),
 (15, 'Vulnera Sanentur (Mend Wounds)', 0, 0, 1, 2, 0, -3, 0, 'Hermione heals a single ally, or herself, from light damage.', NULL, 2),
 (16, 'Brew Potion', 0, 0, 1, 1, 0, -3, 0, 'Hermione brews a random potion, which is added to the party\'s inventory.', NULL, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `ability_level`
+--
+
+CREATE TABLE `ability_level` (
+  `hero_id` int(4) NOT NULL,
+  `ability_id` int(3) NOT NULL,
+  `level` int(2) NOT NULL DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -196,13 +208,24 @@ CREATE TABLE `hero_instance` (
 --
 
 INSERT INTO `hero_instance` (`hinst_id`, `hero_id`, `hinst_level`, `hinst_xp`, `hinst_xpnext`, `hinst_hp`, `hinst_hp_max`, `hinst_energy`, `hinst_energy_max`, `hinst_str`, `hinst_dex`, `hinst_int`, `hinst_cng`, `hinst_injured`, `hinst_dead`) VALUES
-('c01010101', 1, 1, 0, 100, 10, 10, 5, 5, 3, 3, 5, 5, 0, 0),
-('c02020202', 2, 1, 0, 100, 10, 10, 5, 5, 3, 2, 6, 5, 0, 0),
-('c03030303', 3, 1, 0, 100, 8, 8, 7, 7, 1, 3, 6, 6, 0, 0),
+('c01010101', 1, 1, 0, 100, 10, 10, 3, 5, 3, 3, 5, 5, 0, 0),
+('c02020202', 2, 1, 0, 100, 7, 10, 3, 5, 3, 2, 6, 5, 0, 0),
+('c03030303', 3, 1, 0, 100, 8, 8, 4, 7, 1, 3, 6, 6, 0, 0),
 ('c04040404', 4, 1, 0, 100, 12, 12, 4, 4, 6, 4, 3, 3, 0, 0),
 ('c77777777', 3, 1, 0, 100, 8, 8, 7, 7, 1, 3, 6, 6, 0, 0),
 ('c88888888', 2, 1, 0, 100, 10, 10, 5, 5, 3, 2, 6, 5, 0, 0),
 ('c99999999', 1, 1, 0, 100, 10, 10, 5, 5, 3, 3, 5, 5, 0, 0);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `hero_instance_ability`
+--
+
+CREATE TABLE `hero_instance_ability` (
+  `hinst_id` varchar(9) NOT NULL,
+  `ability_id` int(3) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -362,7 +385,7 @@ CREATE TABLE `session` (
 --
 
 INSERT INTO `session` (`session_id`, `session_name`, `session_created`, `session_time`, `session_password`, `session_locked`, `session_desc`, `session_log`, `session_reward`, `session_complete`, `session_player_count`, `session_update`, `session_ready`) VALUES
-('s12345678', 'Example Session', '2017-10-07 20:40:31', '2017-09-12 09:39:16', 'test', 0, 'This is a fake session to test the game.', '', 0, 0, 3, 1, 0),
+('s12345678', 'Example Session', '2017-10-07 22:07:24', '2017-09-12 09:39:16', 'test', 0, 'This is a fake session to test the game.', '<li data-t="h" data-id="c01010101">Abraham Van Helsing attacks Count Dracula with Sacred Weapons. The attack seems especially effective, inflicting 3 points of damage, plus an additional 3 points of Sacred damage!</li><li data-t="h" data-id="c02020202">Sherlock Holmes attacks Count Dracula with Brawling/Pistol, inflicting 2 points of damage.</li><li data-t="h" data-id="c03030303">Hermione Granger attacks Count Dracula with Incendio (Flame). The attack seems especially effective, inflicting 2 points of damage, plus an additional 1 points of Fire damage!</li><li class="logv" data-t="v" data-id="i10101010">Count Dracula says, "I am the terror that flaps in the night!"<br><hr>Count Dracula attacks Sherlock Holmes with Bat Bite, inflicting 3 points of damage.</li>', 0, 0, 3, 4, 0),
 ('s22222222', 'Fake Second Session', '2017-10-05 07:06:43', '2017-09-19 04:57:19', 'password', 0, 'This one exists just to make sure we\'re selecting the right one.', '(Blank.)', NULL, 0, 3, 1, 1);
 
 -- --------------------------------------------------------
@@ -389,20 +412,21 @@ CREATE TABLE `session_player` (
   `player_id` varchar(9) NOT NULL,
   `player_order` int(2) NOT NULL,
   `player_current` tinyint(1) NOT NULL DEFAULT '0',
-  `player_ready` tinyint(1) NOT NULL DEFAULT '0'
+  `player_ready` tinyint(1) NOT NULL DEFAULT '0',
+  `role_id` int(2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `session_player`
 --
 
-INSERT INTO `session_player` (`session_id`, `player_id`, `player_order`, `player_current`, `player_ready`) VALUES
-('s12345678', 'p11111111', 1, 1, 0),
-('s12345678', 'p22222222', 2, 0, 1),
-('s12345678', 'p33333333', 3, 0, 1),
-('s22222222', 'p77777777', 3, 0, 0),
-('s22222222', 'p88888888', 2, 0, 0),
-('s22222222', 'p99999999', 1, 1, 0);
+INSERT INTO `session_player` (`session_id`, `player_id`, `player_order`, `player_current`, `player_ready`, `role_id`) VALUES
+('s12345678', 'p11111111', 1, 1, 0, 0),
+('s12345678', 'p22222222', 2, 0, 1, 0),
+('s12345678', 'p33333333', 3, 0, 1, 0),
+('s22222222', 'p77777777', 3, 0, 0, 0),
+('s22222222', 'p88888888', 2, 0, 0, 0),
+('s22222222', 'p99999999', 1, 1, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -470,7 +494,7 @@ CREATE TABLE `task` (
   `task_name` varchar(255) NOT NULL,
   `task_location` varchar(255) NOT NULL,
   `task_clue` text NOT NULL,
-  `task_reward` int(6) NOT NULL,
+  `task_xp` int(6) NOT NULL,
   `task_desc` text NOT NULL,
   `task_debrief` text NOT NULL,
   `task_password` varchar(255) DEFAULT NULL,
@@ -481,11 +505,29 @@ CREATE TABLE `task` (
 -- Dumping data for table `task`
 --
 
-INSERT INTO `task` (`task_id`, `task_type`, `task_name`, `task_location`, `task_clue`, `task_reward`, `task_desc`, `task_debrief`, `task_password`, `villain_id`) VALUES
+INSERT INTO `task` (`task_id`, `task_type`, `task_name`, `task_location`, `task_clue`, `task_xp`, `task_desc`, `task_debrief`, `task_password`, `villain_id`) VALUES
 (1, 2, 'Type "Password"', 'The Internets', '', 100, 'This task asks you to type the word "Password" into the password field, as if you just searched high and low for it.\r\n\r\nBy the way, these description fields can get pretty long so it\'s probably good that this example text has a little length to it, for UI testing.', 'Congratulations!  You did the thing.', 'Password', 0),
 (2, 3, 'Type "Puppies"', 'Information Superhighway', '', 250, 'This task asks you to type the word "Puppies" into the password field, as if you just searched high and low for it.\r\n\r\nBy the way, these description fields can get pretty long so it\'s probably good that this example text has a little length to it, for UI testing.', 'Congratulations!  You did the thing.', 'Puppies', 0),
 (3, 3, 'Type "Kitties"', 'The Series of Tubes', '', 500, 'This task asks you to type the word "Kitties" into the password field, as if you just searched high and low for it.\r\n\r\nBy the way, these description fields can get pretty long so it\'s probably good that this example text has a little length to it, for UI testing.', 'Congratulations!  You did the thing.', 'Kitties', 0),
 (4, 1, 'Defeat Dracula', 'Dracula\'s Lair', 'Dracula is most certainly an Evil character.  And he sure does seem to hate garlic.', 1000, 'Use your abilities and your special knowledge you\'ve acquired on your journey to defeat the evil Count Dracula!', 'Congratulations!  You\'ve defeated Count Dracula!  The world will certainly sleep easier tonight, knowing their blood is now a lot less likely to be consumed by an ancient monster.', NULL, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `task_item`
+--
+
+CREATE TABLE `task_item` (
+  `task_id` int(4) NOT NULL,
+  `item_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `task_item`
+--
+
+INSERT INTO `task_item` (`task_id`, `item_id`) VALUES
+(1, 1);
 
 -- --------------------------------------------------------
 
@@ -671,7 +713,7 @@ CREATE TABLE `villain_instance` (
 --
 
 INSERT INTO `villain_instance` (`vinst_id`, `villain_id`, `vinst_level`, `vinst_hp`, `vinst_hp_max`, `vinst_energy`, `vinst_energy_max`, `vinst_str`, `vinst_dex`, `vinst_int`, `vinst_cng`, `vinst_active`, `vinst_defeated`) VALUES
-('i10101010', 1, 3, 30, 30, 15, 15, 3, 2, 6, 5, 1, 0),
+('i10101010', 1, 3, 19, 30, 15, 15, 3, 2, 6, 5, 1, 0),
 ('i20202020', 2, 1, 20, 20, 10, 10, 5, 3, 2, 2, 0, 0),
 ('i30303030', 3, 2, 25, 25, 15, 15, 5, 5, 2, 3, 0, 0);
 
@@ -694,7 +736,7 @@ CREATE TABLE `villain_instance_ability` (
 INSERT INTO `villain_instance_ability` (`vinst_id`, `ability_id`, `cooldown_left`) VALUES
 ('i10101010', 5, 0),
 ('i10101010', 6, 0),
-('i10101010', 7, 0);
+('i10101010', 7, 2);
 
 -- --------------------------------------------------------
 
@@ -725,6 +767,12 @@ INSERT INTO `villain_instance_effect` (`vinst_id`, `effect_id`, `effect_duration
 ALTER TABLE `ability`
   ADD PRIMARY KEY (`ability_id`),
   ADD UNIQUE KEY `ability_id` (`ability_id`);
+
+--
+-- Indexes for table `ability_level`
+--
+ALTER TABLE `ability_level`
+  ADD UNIQUE KEY `hero_id` (`hero_id`,`ability_id`);
 
 --
 -- Indexes for table `effect`
@@ -758,6 +806,12 @@ ALTER TABLE `hero_ability`
 ALTER TABLE `hero_instance`
   ADD PRIMARY KEY (`hinst_id`),
   ADD UNIQUE KEY `character_id` (`hinst_id`);
+
+--
+-- Indexes for table `hero_instance_ability`
+--
+ALTER TABLE `hero_instance_ability`
+  ADD UNIQUE KEY `hinst_id` (`hinst_id`,`ability_id`);
 
 --
 -- Indexes for table `hint`
@@ -808,6 +862,12 @@ ALTER TABLE `session_task`
 --
 ALTER TABLE `task`
   ADD PRIMARY KEY (`task_id`);
+
+--
+-- Indexes for table `task_item`
+--
+ALTER TABLE `task_item`
+  ADD UNIQUE KEY `task_id` (`task_id`,`item_id`);
 
 --
 -- Indexes for table `type_ability`
